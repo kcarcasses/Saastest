@@ -1,0 +1,433 @@
+{
+	"info": {
+		"_postman_id": "c0038753-29d1-437b-a1de-7b47d1797c24",
+		"name": "Staging SAAS Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36401989"
+	},
+	"item": [
+		{
+			"name": "Alta de Paciente",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// Parsear la respuesta del servidor (si es necesario).\r",
+							"let responseData = pm.response.json();\r",
+							"\r",
+							"\r",
+							"// Obtener el mismo patient_id enviado en la solicitud\r",
+							"let requestBody = pm.request.body.raw;\r",
+							"let requestData = JSON.parse(requestBody);\r",
+							"let patientId = requestData.data.patient_id;\r",
+							"\r",
+							"// ✅ Mostrar el ID de paciente en los resultados de la pestaña \"Test Results\"\r",
+							"pm.test(\"Patient ID agregado: \" + patientId, function () {\r",
+							"    pm.expect(patientId).to.exist;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"// Guardar el id de paciente creado en una variable de entorno\r",
+							"pm.environment.set(\"patient_id\", patientId);\r",
+							"pm.expect(patientId).to.not.be.null;\r",
+							"\r",
+							"// Mostrarlo en la consola de Postman\r",
+							"console.log(\"Patient ID guardado:\", patientId);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\": {\r\n    \"patient_id\":\"{{$randomUUID}}\",\r\n    \"name\": \"Jonh\",\r\n    \"paternal_name\": \"Doe\",\r\n    \"birth_date\": \"1960-12-20\",\r\n    \"biological_gender\": \"GENDER-2\",\r\n    \"phone\": \"+55 489845698789\",\r\n    \"country_code\": \"BR\",\r\n    \"email\": \"jonhdoe@gmail.com\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://ca5pfwz9h6.execute-api.us-east-1.amazonaws.com/staging/saasv2/patient",
+					"protocol": "https",
+					"host": [
+						"ca5pfwz9h6",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"staging",
+						"saasv2",
+						"patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Editar paciente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"//Parsear la respuesta del servidor (si es necesario).\r",
+							"let responseData = pm.response.json();\r",
+							"\r",
+							"// Obtener el mismo patient_id enviado en la solicitud\r",
+							"let requestBody = pm.request.body.raw;\r",
+							"let requestData = JSON.parse(requestBody);\r",
+							"let patientId = requestData.data.patient_id;\r",
+							"\r",
+							"// ✅ Mostrar el ID de paciente en los resultados de la pestaña \"Test Results\"\r",
+							"pm.test(\"Patient ID editado: \" + patientId, function () {\r",
+							"    pm.expect(patientId).to.exist;\r",
+							"});\r",
+							"\r",
+							"// Obtener los datos editados (los que tienen variables dinámicas)\r",
+							"let updatedData = {\r",
+							"    name: requestData.data.name,\r",
+							"    paternal_name: requestData.data.paternal_name,\r",
+							"    phone: requestData.data.phone,\r",
+							"    email: requestData.data.email\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Datos actualizados: \" + JSON.stringify(updatedData, null, 2), function () {\r",
+							"    pm.expect(updatedData).to.be.an(\"object\");\r",
+							"});\r",
+							"\r",
+							"//Imprimir en la consola de Postman\r",
+							"console.log(\"Patient ID actualizado:\", patientId);\r",
+							"console.log(\"Datos editados:\", updatedData);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\": {\r\n    \"patient_id\":\"{{patient_id}}\",\r\n    \"name\": \"{{$randomFirstName}}\",\r\n    \"paternal_name\": \"{{$randomLastName}}\",\r\n    \"birth_date\": \"1960-12-20\",\r\n    \"biological_gender\": \"GENDER-2\",\r\n    \"phone\": \"+55 {{$randomPhoneNumber}}\",\r\n    \"country_code\": \"BR\",\r\n    \"email\": \"{{$randomEmail}}\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://ca5pfwz9h6.execute-api.us-east-1.amazonaws.com/staging/saasv2/patient",
+					"protocol": "https",
+					"host": [
+						"ca5pfwz9h6",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"staging",
+						"saasv2",
+						"patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Iniciar tamizaje",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// Parsear la respuesta del servidor\r",
+							"let response = pm.response.json();\r",
+							"\r",
+							"// Obtener el mismo patient_id enviado en la solicitud\r",
+							"let requestBody = pm.request.body.raw;\r",
+							"let requestData = JSON.parse(requestBody);\r",
+							"let patientId = requestData.data.patient_id;\r",
+							"\r",
+							"// ✅ Mostrar el ID de paciente en los resultados de la pestaña \"Test Results\"\r",
+							"pm.test(\"Patient ID editado: \" + patientId, function () {\r",
+							"    pm.expect(patientId).to.exist;\r",
+							"});\r",
+							"\r",
+							"// Verificar que \"interaction_id\" existe en la respuesta y guardarla en una variable de entorno\r",
+							"if (response.data && response.data.interaction_id) {\r",
+							"    pm.environment.set(\"interaction_id\", response.data.interaction_id);\r",
+							"    console.log(\"Interaction ID guardado:\", response.data.interaction_id);\r",
+							"} else {\r",
+							"    console.log(\"No se encontró interaction_id en la respuesta.\");\r",
+							"}\r",
+							"// ✅ Mostrar la interacció en la pestaña \"Test Results\"\r",
+							"pm.test (\"Interacción nueva:\" + response.data.interaction_id,function(){\r",
+							"   pm.expect(response.data.interaction_id).to.exist;\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\": {\r\n    \"patient_id\": \"{{patient_id}}\",\r\n    \"poc_id\": 587,\r\n    \"questionnarie\": {\r\n         \"diabetes\":true,\r\n         \"diabetes_years\":5,\r\n         \"hypertension\":true,\r\n         \"hypertension_years\":5,\r\n         \"life_quality_affected\" :true,\r\n         \"vision_disease_relatives\" :true,\r\n         \"blurred_vission\" :true,\r\n         \"color_perception_changes\" :true,\r\n         \"lightness_sensitivity\" :true,\r\n         \"difficulty_seeing_night\" :true,\r\n         \"flashes\" :true,\r\n         \"eye_pain\" :true,\r\n         \"dificulty_seeing_close\" :true,\r\n         \"floating_flies\" :false,\r\n         \"ophtamologist_last_visit\" :\"RF-LVO-3\",\r\n         \"vision_changes\" :\"SY-OPH-TEMP-1\"\r\n          },\r\n    \"complementary_evaluation\":{\r\n        \"red_eye\":[\"left\"],\r\n        \"avcv_test\":true,\r\n        \"visual_acuity\":{\r\n           \"left_eye\":\"20/80\",\r\n           \"right_eye\":\"20/80\"\r\n        },\r\n        \"visual_capacity\":{\r\n           \"left_eye\":\"20/50\",\r\n           \"right_eye\":\"20/50\"\r\n        }\r\n    }\r\n        \r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://ca5pfwz9h6.execute-api.us-east-1.amazonaws.com/staging/saasv2/interaction",
+					"protocol": "https",
+					"host": [
+						"ca5pfwz9h6",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"staging",
+						"saasv2",
+						"interaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Subida de imagen",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// Parsear la respuesta del servidor\r",
+							"let response = pm.response.json();\r",
+							"\r",
+							"// Obtener la misma interacción enviado en la solicitud\r",
+							"let requestBody = pm.request.body.raw;\r",
+							"let requestData = JSON.parse(requestBody);\r",
+							"let interaction_id = requestData.data.interaction_id;\r",
+							"\r",
+							"// ✅ Mostrar la interacción en la pestaña \"Test Results\"\r",
+							"pm.test(\"Interacción actualizada: \" + interaction_id, function () {\r",
+							"    pm.expect(interaction_id).to.exist;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"data\": {\r\n    \"interaction_id\": \"{{interaction_id}}\",\r\n    \"name\": \"ERIM1.jpg\",\r\n    \"image\": \"{{ERIM1}}\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://ca5pfwz9h6.execute-api.us-east-1.amazonaws.com/staging/saasv2/upload_photo",
+					"protocol": "https",
+					"host": [
+						"ca5pfwz9h6",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"staging",
+						"saasv2",
+						"upload_photo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Evaluar interacción",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// Parsear la respuesta del servidor (si es necesario).\r",
+							"let responseData = pm.response.json();\r",
+							"\r",
+							"// Obtener la misma interacción enviado en la solicitud\r",
+							"let requestBody = pm.request.body.raw;\r",
+							"let requestData = JSON.parse(requestBody);\r",
+							"let interaction_id = requestData.data.interaction_id;\r",
+							"\r",
+							"// ✅ Mostrar la interacción en la pestaña \"Test Results\"\r",
+							"pm.test(\"Interacción actualizada: \" + interaction_id, function () {\r",
+							"    pm.expect(interaction_id).to.exist;\r",
+							"});\r",
+							"\r",
+							"// Obtener la lista de referal causes\r",
+							"let referalCauses = responseData.data.referal_causes.map(item => {\r",
+							"    return `- ${item.referal_cause} ${item.eye_side ? `(Eye Side: ${item.eye_side})` : \"\"}`;\r",
+							"}).join(\"\\n\");\r",
+							"\r",
+							"// Obtener report_uri\r",
+							"let reportUri = responseData.data.report_uri || \"No disponible\";\r",
+							"\r",
+							"// ✅ Mostrar en Test Results los valores de referal causes\r",
+							"pm.test(\"Referal Causes:\\n\" + referalCauses, function () {\r",
+							"    pm.expect(responseData.data.referal_causes).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"// ✅ Mostrar en Test Results el report_uri\r",
+							"pm.test(\"Report URI: \" + reportUri, function () {\r",
+							"    pm.expect(responseData.data).to.have.property(\"report_uri\");\r",
+							"});\r",
+							"\r",
+							"// También imprimir en la consola de Postman\r",
+							"console.log(\"Referal Causes:\", referalCauses);\r",
+							"console.log(\"Report URI:\", reportUri);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\":{\r\n        \"interaction_id\":\"{{interaction_id}}\"\r\n}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://ca5pfwz9h6.execute-api.us-east-1.amazonaws.com/staging/saasv2/evaluate",
+					"protocol": "https",
+					"host": [
+						"ca5pfwz9h6",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"staging",
+						"saasv2",
+						"evaluate"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
